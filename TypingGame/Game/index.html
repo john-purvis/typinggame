@@ -1,0 +1,824 @@
+﻿<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US">
+<head>
+<title>Keyboard Typing Game</title><link rel = "icon" href = "/favicon.gif" /><META http-equiv="Content-Type" content="text/html;charset=utf-8">
+
+<script src = 'js/jquery.js' type = 'text/javascript'></script>
+<link rel = 'stylesheet' type = 'text/css' href = 'css/style.css' />
+
+<script type = "text/javascript">
+	/* Original code modified from Free Keyboard Practice Typing Game for Kids obtained from http://www.learnjquery.org/about/free-keyboard-practice-typing-game-for-kids.html */
+
+    $.typer = {
+        difficulty: 'easy',
+		paused: true,
+		dead: false,		
+		width: 1,
+		height: 2,
+		fall_delay: 10,
+		state: 'menu',
+		level: 1,
+		score: 0,
+		words: [],
+		all_words: [],
+		words_n: 2,
+		accuracy: 100,
+		bulletsFired: 0,
+		total: 0,
+		cpm: 0,
+		wpm: 0,
+		init: function(w, h) {
+			this.width = w;
+			this.height = h;
+			$('#mc,#v').css({
+				width: w + 'px',
+				height: h + 'px'
+			});
+			window.IX = ($.typer.width / 2) - 16;
+			window.IY = ($.typer.height - 72);
+		}
+	};
+
+	var sound_bullet = [];
+	var sound_hit = [];
+	var sound_atomic = [];
+	var GAME_TIMER = null;
+	var IX = 0;
+	var IY = 0;
+	var ladder = 0;
+		
+	var game_logic_loop_counter = 0;
+	var game_loop_counter = 0;
+	var game_loop_speed_threshhold = 50;
+	var game_loop_speed_value = 5;
+	var game_loop_speed = 0;
+	
+	var IX = ($.typer.width / 2) - 16;
+	var IY = ($.typer.height - 72);
+	
+	var word_is_selected = false;
+	var selected_word_id = -1;
+	
+	var sphere_explosion_angle = 0;
+	var current_bullet_id = 0;
+	var bullet = [];
+	var bullets = 0;
+	var bullet_velocity = 25;
+	
+	var start = new Date().getTime();
+	var end = new Date().getTime();
+	var elapsed = 0;
+	var elapsedChars = 0;
+		
+	$(document).ready(function() {
+		sound_bullet[0] = document.getElementById("bullet");
+		sound_hit[0] = document.getElementById("hit");
+		sound_atomic[0] = document.getElementById("atomic");
+	});
+
+	/*
+	var wordList = ["hello", "there", "sunlight", "clouds", "wind", "sausage", "limitless", "unknown", "word", "letter", "alphabet", "surface", "flying", "depend", "water", "salt", "earth", "air", "trees", "fascinating", "time", "javascript", "css", "html", "var", "object", "window", "door", "passage", "reminiscent", "gigantic", "monumental", "cheese", "pancakes", "volume", "briefcase", "astounding", "quiet", "poor", "humble", "sky", "sun", "moon", "planets", "galaxy", "something", "oxen", "trees", "burningbush", "mozart", "multiply", "subtract", "autumn", "summer", "spring", "winter", "ocean", "waves", "potatoes", "pink", "orange", "blue", "red", "underwater", "brightness", "everything", "sometimes", "bacon", "cow", "dog", "street", "bakery", "bread", "butter", "ambassadorship", "aerobiologist", "tetragon", "tidytips", "torchiest", "upington", "banffshire", "resume", "crinosity", "fluidic", "upbound", "anathematical", "grabble", "uneffeminate", "tarentum", "achaea", "terminatively", "pedestal", "fundamentally", "cinder", "predispose", "receipt", "rocket", "unbettered", "predriller", "bandeau", "perambulated", "elena", "washtub", "innuit", "unexceedable", "brahmanic", "semiallegoric", "denumerably", "attila", "acetimetry", "awhirl", "spinneret", "pixy", "postcard", "tawyer", "consentiently", "undetermining", "unspilt", "haylift", "undescending", "legato", "overdiscouraging", "carrier", "trilinear"];
+	$(document).ready(function() {
+		initialize_game();
+		toggle_pause();
+		// keyboard handler
+		$(document).on("keydown", function(event) {
+			process_keypress(event);
+		});		
+	});
+	*/
+
+	var wordList = [];
+	(function() {
+		var wordlistAPI = "wordlists/08.json";
+		$.getJSON( wordlistAPI, {
+		})
+		.done(function( data ) {
+			$.each( data, function( i, item ) {
+				wordList.push(item.word);
+			});
+			initialize_game();
+		});
+	})();
+	
+	function initialize_game() {
+		$.typer.init(480, 480);
+		
+		for (var i = 0; i < $.typer.words_n; i++) {
+			add_word(i);
+		}
+		$(".word").each(function(index) {
+			$.typer.all_words[index] = $(this).text();
+		});
+		/* place cannon */
+		$("#cannon").css({
+			left: (($.typer.width / 2) - 16) + 'px',
+			bottom: '32px'
+		});
+		/* place turret */
+		var turret = $("#turret"); 
+		turret.css({
+			left: (($.typer.width / 2) - 16) + 'px',
+			bottom: '64px'
+		});
+		translate(turret, 0, 0, 1, 90, 0, 4, 0);
+		/* place cities */
+		$("#city1").css({
+			left: (($.typer.width / 8) - 16) + 'px',
+			bottom: '32px'
+		});
+		$("#city2").css({
+			left: (($.typer.width / 3) - 16) + 'px',
+			bottom: '32px'
+		});	
+		$("#city3").css({
+			right: (($.typer.width / 8) - 16) + 'px',
+			bottom: '32px'
+		});
+		$("#city4").css({
+			right: (($.typer.width / 3) - 16) + 'px',
+			bottom: '32px'
+		});			
+		/* place the ground */
+		$("#ground").css({
+			left: '0px',
+			bottom: '0px'
+		});	
+		
+		// keypress handler
+		$(document).on("keydown", function(event) {
+			process_keypress(event);
+		});		
+		
+		// since game is initially paused, unpause it to play
+		toggle_pause();
+	}
+
+	function add_word(i, top) {
+		var copy_words = wordList;
+		var id = random_to(copy_words.length);
+		$("#v").append("<span id = 'wc" + i + "' class = 'word_container'><p class = 'word'>" + copy_words[id] + "</p></span>");
+		var location = getAddLocation();
+		$("#wc" + i).css({
+			velocity: "10",
+			left: location[0] + "px",
+			top: location[1] + "px"
+		});
+	} 
+	
+	function getAddLocation() {
+		// TODO: calculate perfect add location
+		// NOTE: jquery also offers an offset method, but this is relative to the document and not our container
+		var suggested_left = 480 / 2 - 150 + random_to(250);
+		if (top != undefined) {
+			ladder = 32;
+		} else { 
+			ladder += 27; 
+		}
+		var suggested_top = ladder + 16;
+		
+		var wordElements = $(".word_container");
+		wordElements.each( function(index) {
+		    var word = $(this);
+		    if (word) {
+		        var position = word.position();
+		        var width = word.width();
+		        var height = word.height();
+		        var left = word[0].style.left.replace("px", "");
+		        var top = word[0].style.top.replace("px", "");
+		        var right = word[0].style.right.replace("px", "");
+		        var bottom = word[0].style.bottom.replace("px", "");
+		        // left and top won't be defined for the current word
+		        // so if we know left and top for the others
+		        // we can calculate the new words position so that words won't overlap
+		        if (left && top && position.left > 0 && position.top > 0) {
+		            // calculate right and bottom since we only have left and top
+		            right = parseInt(left) + parseInt(width);
+		            bottom = parseInt(top) + parseInt(height);
+		            // alert("Width: " + width + " Height: " + height + " Left: " + left + " Top: " + top + " right: " + right + " bottom: " + bottom + " SugLeft: " + suggested_left + " SugTop: " + suggested_top);
+		            while (suggested_top >= top && suggested_top <= bottom + 10) {
+		                // move word down
+		                var adjustment = random_to(height);
+		                suggested_top = suggested_top + adjustment;
+		            }
+		        }
+		    }
+		});
+	
+		var x = suggested_left;
+		var y = suggested_top;
+		return [x, y];
+	}
+	
+	function remove_letter(id) {
+	    var word = $("#wc" + id + " p").text();
+	    if (word.length > 0) {
+	        elapsedChars += 1;
+	        word = word.substr(1, word.length);
+	        $("#wc" + id + " p").text(word);
+	    }
+	    if ($("#wc" + id + " p").text().length == 0) {
+	        $("#wc" + id + " p").fadeOut(300, function () {
+	            /* remove word from html */
+	            $("#wc" + id).remove();
+	        });
+	        $.typer.score += 1;
+	        add_word($.typer.words_n++, 1);
+	    }
+	    return $("#wc" + id + " p").text().length;
+	}
+
+	function process_keypress(event) {
+		var kc = event.which;
+		if (!isValidKey(kc)) 
+			return;
+		if (kc == 27)	
+			toggle_pause(); // esc pause key
+		if (kc != 27 && !$.typer.paused) {
+			var missed = false;
+			$.typer.total += 1;
+			
+			if (!word_is_selected) {
+				// locate all words that begin with this letter, picking the closest one to the bottom
+				var previous_y = 0;
+				var words = $("span[id^=" + "wc" + "]").filter(function(){ return $(this).text().toLowerCase().charAt(0) === String.fromCharCode(kc).toLowerCase();})
+				words.each(function(index) {
+					var word = $(this);
+					var target_y = parseInt(word.css("top"));
+					if (target_y > previous_y) {
+						selected_word_id = parseInt(word[0].id.replace("wc",""));
+						previous_y = target_y;
+					}
+				});
+			
+				var word = $("#wc" + selected_word_id);
+				word.addClass("selected");
+				if (remove_letter(selected_word_id) == 0) {
+					word_is_selected = false;
+					add_bullet(selected_word_id);
+					selected_word_id = -1;
+				} else {
+					word_is_selected = true;
+					add_bullet(selected_word_id);
+				}				
+			} else {
+				// word already selected, continue processing selected word
+				var letter = $("#wc" + selected_word_id + " p").text().charAt(0); 
+				if (String.fromCharCode(kc).toLowerCase() == letter) {
+					var rem = remove_letter(selected_word_id);
+					if (rem == 0) {
+						$("#wd" + selected_word_id).fadeOut(1000);
+						word_is_selected = false;
+						add_bullet(selected_word_id);
+						selected_word_id = -1;
+					} else {
+						word_is_selected = true;
+						add_bullet(selected_word_id);
+					}		
+				}
+			}
+		} /* end if typer is paused */	
+	}
+	
+	function isValidKey(keycode) {
+		var valid = 
+			(keycode == 27) ||
+			(keycode > 64 && keycode < 91); // letter keys
+			//(keycode > 47 && keycode < 58)   || // number keys
+			// keycode == 32 || keycode == 13   || // spacebar & return key(s) (if you want to allow carriage returns)
+			//(keycode > 95 && keycode < 112)  || // numpad keys
+			//(keycode > 185 && keycode < 193) || // ;=,-./` (in order)
+			//(keycode > 218 && keycode < 223);   // [\]' (in order)
+
+		return valid;	
+	}
+	
+	function toggle_pause() {
+		if ($.typer.paused) {
+			$.typer.paused = false;
+			GAME_TIMER = setInterval(process_game_logic, 100);
+			BULLET_TIMER = setInterval(process_bullets, 10);
+			HIT_TIMER = setInterval(process_hits, 10);
+		} else {
+			$.typer.paused = true;
+			clearInterval(GAME_TIMER); GAME_TIMER = 0;
+			clearInterval(BULLET_TIMER); BULLET_TIMER = 0;
+			clearInterval(HIT_TIMER); HIT_TIMER = 0;
+		}		
+	}
+	
+	function process_game_logic() {
+		if (!$.typer.paused && !$.typer.dead) {
+			/* animate words */
+			if ($.typer.all_words != undefined) {
+				for (var i = 0; i < $.typer.words_n; i++) {
+					var cur = $("#wc" + i);
+					if (cur) {
+						cur.css({top: "+=" + 1 + "px"});
+						process_base_hits(cur);
+					}
+				}
+			}
+			/* increase game speed */
+			if (game_loop_counter++ > game_loop_speed_threshhold) {
+				game_loop_counter = 0;
+				clearInterval(GAME_TIMER);
+				game_loop_speed += game_loop_speed_value;
+				GAME_TIMER = setInterval(process_game_logic, 100 - game_loop_speed);
+				if ($.typer.difficulty == 'hard') {
+				    add_word($.typer.words_n++, 1);
+				}
+				console.log("debug: increasing speed by " + game_loop_speed + " total");
+			}
+			/* calculate accuracy */
+			if ($.typer.total == 0) {
+				$.typer.accuracy = 100;
+			} else {
+				$.typer.accuracy = (100 / $.typer.total * $.typer.bulletsFired).toFixed(1);
+			}
+			/* display score and accuracy */
+			end = new Date().getTime();
+			var millis = end - start;666
+			var minutes = millis/1000/60;			
+			$.typer.wpm = ((elapsedChars / 5) / minutes).toFixed(1);
+			$.typer.cpm = (elapsedChars / minutes).toFixed(1);
+			$("#score").html("<b>Words</b> " + $.typer.score + " <b>Accuracy</b> " + $.typer.accuracy + "% <b>WPM</b> " + $.typer.wpm + " <b>CPM</b> " + $.typer.cpm);
+		}
+		if ($.typer.dead) {
+			if (game_logic_loop_counter > 50) {
+				// if we are dead, and the game loop has run at least 50 more times, stop the game timers 
+				// otherwise, we could cause issues with someone's browser and the script would run forever
+				stop_game();
+			}
+			else {
+				game_logic_loop_counter += 1;
+			}
+		}
+	}
+
+	function add_bullet(target) {
+		var bs = sound_bullet[0];
+		bs.cloneNode(true).play();
+		$.typer.bulletsFired += 1;
+		var inix = ($.typer.width / 2) - 16;
+		var iniy = ($.typer.height - 72);
+		var new_bullet = "<div class = 'bullet' id = 'bullet_" + current_bullet_id + "' purpose = '" + target + "'></div>";
+		$("#v").append(new_bullet);
+		var target_x = parseInt($("#wc" + target).css("left"));
+		var target_y = parseInt($("#wc" + target).css("top"));
+		var vec_x = (target_x - inix) / 20;
+		var vec_y = (target_y - iniy) / 20;
+		var v1x = 10;
+		var v1y = 0;
+		var v2x = vec_x;
+		var v2y = vec_y;
+		var ANGLE = Math.acos((v1x * v2x + v1y * v2y) / (Math.sqrt(v1x * v1x + v1y * v1y) * Math.sqrt(v2x * v2x + v2y * v2y))) * 180 / Math.PI;
+		var this_bullet = $("#bullet_" + current_bullet_id);
+		var selected_word = $('#wc' + selected_word_id);
+		this_bullet.css({
+			left: inix + 'px',
+			top: iniy + 'px'
+		});
+		if (selected_word) {
+		    var vec = dist(selected_word, this_bullet);
+		    this_bullet.attr("vecx", vec_x);
+		    this_bullet.attr("vecy", vec_y);
+		    this_bullet.attr("walk", 0);
+		    translate(this_bullet, 0, 0, 1, -ANGLE, 0, 0, 0);
+		    translate($("#turret"), 0, 0, 1, -ANGLE, 0, 0, 0);
+		}
+		current_bullet_id++;
+	}
+
+	function process_bullets() {
+		if (!$.typer.paused) {	
+			var stats = $("#stats");
+			var bullet = $(".bullet");
+			bullet.each(function(index) {
+				var b = $(this);
+				var vx = parseFloat(b.attr("vecx"));
+				var vy = parseFloat(b.attr("vecy"));
+				var target = parseInt(b.attr("purpose"));
+				var walk = parseFloat(b.attr("walk"));
+				if (b.attr("hit") != 1)
+					if (parseInt(b.css("top")) <= parseInt($("#wc" + target).css("top")) + 14) {
+						var x = parseInt(b.css("left")) + 10;
+						var y = parseInt(b.css("top")) + 10;
+						add_missile_hit(x, y);
+						b.attr("hit", 1);
+					}
+				if (walk > 10); {
+					b.fadeOut(500, function() {
+						/* remove bullet from html */
+						$(this).remove();
+					});
+				}
+				b.attr("walk", walk + 1.0);
+				b.css("left", IX + parseInt(vx * walk) + "px");
+				b.css("top", IY + parseInt(vy * walk) + "px");
+			});
+		}
+	}
+
+	function add_missile_hit(x, y) {
+		var bs = sound_hit[0];5
+		bs.cloneNode(true).play();
+		for (var i = 0; i < 360; i += 36) {
+			add_missile_hit_html(x, y, i + sphere_explosion_angle);
+			sphere_explosion_angle += 1;
+		}	
+	}
+
+	function add_missile_hit_html(x, y, ang) {
+	    var direction = directionXY(ang);
+		$("#v").append("<div class = 'hit' x = '" + x + "' y = '" + y + "' vecx = '" + direction[0] + "' vecy = '" + direction[1] + "' walk = '0'></div>");
+	}
+
+	function add_base_hit(x, y) {
+		var bs = sound_atomic[0];
+		bs.cloneNode(true).play();
+		for (var i = 0; i < 360; i += 36) {
+			add_base_hit_html(x, y, i + sphere_explosion_angle);
+			sphere_explosion_angle += 1;
+		}
+	}
+	
+	function add_base_hit_html(x, y, ang) {	
+	    var direction = directionXY(ang);
+		$("#v").append("<div class = 'atomic' x = '" + x + "' y = '" + y + "' vecx = '" + direction[0] + "' vecy = '" + direction[1] + "' walk = '0'></div>");	
+	}
+	
+	function process_base_hits(target) {
+		var inix = ($.typer.width / 2) - 16;
+		var iniy = ($.typer.height - 72);
+		var target_x = parseInt($(target.selector).css("left"));
+		var target_y = parseInt($(target.selector).css("top"));		
+		if (!isNaN(target_y) && target_y > iniy) {
+			/* they hit our base */
+			process_base_explosion();
+		}
+	}
+	
+	function process_base_explosion() {
+		if (!$.typer.dead) {
+			$.typer.dead = true;
+			var x = ($.typer.width / 2) - 16;
+			var y = ($.typer.height - 72);
+			add_base_hit(x, y);
+			
+			// blow up cities
+			x = $('#city1').position().left;
+			y =$('#city1').position().top;
+			add_base_hit(x, y);
+			x = $('#city2').position().left;
+			y =$('#city2').position().top;
+			add_base_hit(x, y);
+			x = $('#city3').position().left;
+			y =$('#city3').position().top;
+			add_base_hit(x, y);
+			x = $('#city4').position().left;
+			y =$('#city4').position().top;
+			add_base_hit(x, y);
+			$('.city').fadeOut(1500, function() {
+				/* remove cities from html */
+				$('.city').remove();
+			});					
+			
+			// skew turret
+			var turret = $("#turret"); 
+			turret.css({
+				left: (($.typer.width / 2) - 26) + 'px',
+				bottom: '70px'
+			});
+			$(turret.selector).fadeOut(1500, function() {
+				/* remove turret from html */
+				$(turret.selector).remove();
+			});				
+			// skew cannon
+			var cannon = $("#cannon");
+			cannon.css({
+				left: (($.typer.width / 2) - 6) + 'px',
+				bottom: '40px'
+			});			
+			$(cannon.selector).fadeOut(1500, function() {
+				/* remove cannon from html */
+				$(cannon.selector).remove();
+			});	
+			
+			
+			/* explode everything else on screen for effect */
+			if ($.typer.all_words != undefined) {
+				for (var i = 0; i < $.typer.words_n; i++) {
+					var cur = $("#wc" + i);
+					if (cur) {
+						var target_x = parseInt(cur.css("left"));
+						var target_y = parseInt(cur.css("top"));			
+						add_missile_hit(target_x, target_y);		
+						cur.fadeOut(500, function() {
+							/* remove word from html */
+							cur.remove();
+						});	
+					}					
+				}
+			}
+		}
+	}
+	
+	function process_hits() {
+		if (!$.typer.paused) {	
+			var hit = $(".hit");
+			hit.each(function(index) {
+				var h = $(this);
+				var x = parseFloat(h.attr("x"));
+				var y = parseFloat(h.attr("y"));
+				var vx = parseFloat(h.attr("vecx"));
+				var vy = parseFloat(h.attr("vecy"));
+				var walk = parseFloat(h.attr("walk"));
+				h.fadeOut(500, function() {
+					/* remove hit from html */
+					$(this).remove();
+				});
+				h.attr("walk", walk + 1.0);
+				h.css("left", x + parseInt(vx * walk) + "px");
+				h.css("top", y + parseInt(vy * walk) + "px");
+			});
+			var atomic = $(".atomic");
+			atomic.each(function(index) {
+				var h = $(this);
+				var x = parseFloat(h.attr("x"));
+				var y = parseFloat(h.attr("y"));
+				var vx = parseFloat(h.attr("vecx"));
+				var vy = parseFloat(h.attr("vecy"));
+				var walk = parseFloat(h.attr("walk"));
+				h.fadeOut(1500, function() {
+					/* remove atomic from html */
+					$(this).remove();
+				});
+				h.attr("walk", walk + 1.0);
+				h.css("background", random_color());
+				h.css("left", x + parseInt(vx * walk) + "px");
+				h.css("top", y + parseInt(vy * walk) + "px");
+			});			
+		}
+	}
+	
+	function game_over() {
+		$("#banner")[0].innerHTML = "<span>Game Over</span>";
+	}
+	
+	function stop_game() {
+	    // display game over
+	    game_over();
+	    // remove keypress handler
+	    $(document).unbind("keydown");
+	    // pause also stops all the timers
+	    toggle_pause();
+	    // call window stop
+	    window.stop();
+	}
+
+	function resetElapsedCharacterCounter() {
+	    start = new Date().getTime();
+	    elapsedChars = 0;
+	}
+
+	function dist(e1, e2) {
+	    var pos1 = e1.position();
+	    var pos2 = e2.position();
+	    var w = pos1.left - pos2.left;
+	    var h = pos1.top - pos2.top;
+	    return [w, h];
+	}
+
+	function random_to(len) {
+		return Math.floor((Math.random() * len));
+	}
+	
+	function random_color() {
+		return '#'+Math.floor(Math.random()*16777215).toString(16);
+	}
+
+	function rotate(element, x, y, z) {
+	    var rotation = 'rotateX(' + x + 'deg) rotateY(' + y + 'deg) rotateZ(' + y + 'deg)';
+	    element.css({
+	        "-webkit-transform": rotation,
+	        "-moz-transform": rotation
+	    });
+	}
+
+	function translate(element, x, y, z, degrees, tx, ty, tz) {
+	    var translate = "translate3d(" + tx + "px, " + ty + "px, " + tz + "px)";
+	    var rotate = "rotate3d(" + x + ", " + y + ", " + z + ", " + degrees + "deg)";
+	    var final = translate + " " + rotate;
+	    var wt = {
+	        "-webkit-transform": final,
+	        "-moz-transform": final
+	    };
+	    element.css(wt);
+	}
+
+	function directionXY(angle) {
+	    var dirx = Math.sin(parseFloat(angle) * Math.PI / 180.0);
+	    var diry = -Math.cos(parseFloat(angle) * Math.PI / 180.0);
+	    return [dirx, diry];
+	}
+
+	function angle(dir_x, dir_y) { }
+
+	/*
+	function getElementsAt(top, left) {
+		return $("body")
+		   .find("*")
+		   .filter(function() {
+			   return $(this)[0].style.top == top + 'px'
+					&& $(this)[0].style.left == left + 'px';
+		});
+	}
+	*/
+</script>
+<style type="text/css">
+	#board {
+		position: relative;
+		width: 906px;
+		height: 560px;
+		/* background: url("images/black.png") repeat; */
+	}
+	#mc {
+		position: absolute;
+		top: 37px;
+		left: 40px;
+		width: 640px;
+		height: 480px;
+		/*
+		background: url("images/digital-space-ipad-background.jpg") no-repeat;
+		background-size: 100%;
+		*/
+		background: url("images/starsandnebula250d.jpg") repeat;
+	}
+	#v {
+		position: absolute;
+		width: 600px;
+		height: 480px;
+		clip: rect(0, 600px, 480px, 0);
+	}
+	.word_container {
+		position: absolute;
+		opacity: 0.7;
+		border: none;
+	}
+	.word {
+		position: relative;
+		padding-left: 3px;
+		padding-right: 3px;
+		width: auto;
+		display: inline;
+		border-radius: 3px;
+		background: #333333;
+		opacity: 1.0;
+		color: white !important;
+		font-family: Courier New, sans-serif;
+		font-weight: bold;
+		font-size: 20px !important;
+		-webkit-box-shadow: 0px -10px 5px 0px rgba(50, 50, 50, 0.75);
+		-moz-box-shadow:    0px -10px 5px 0px rgba(50, 50, 50, 0.75);
+		box-shadow:         0px -10px 5px 0px rgba(50, 50, 50, 0.75);				
+	}
+	.letter {
+		width: 16px;
+		height: 16px;
+	}
+	#cannon {
+		position: absolute;
+		width: 32px;
+		height: 32px;
+		/* background: gray; */
+		border-radius: 10px;
+		background: url("images/metal_texture02.jpg") no-repeat;
+		/* background-position: -100px -90px; */
+		background-size: 100%;
+		-webkit-box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.75);
+		-moz-box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.75);
+		box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.75);		
+		z-index: 50;
+	}
+	#turret {
+		position: absolute;
+		width: 32px;
+		height: 4px;
+		/* background: gray; */
+		background: url("images/gradiant_texture01.jpg") no-repeat;
+		background-position: -100px -90px;
+		z-index: 50;
+	}	
+	.city {
+		position: absolute;
+		width: 32px;
+		height: 32px;
+		/* background: black; */
+		border-radius: 2px; 
+		background: url("images/brick_texture01.jpg") no-repeat;
+		/* background-position: -100px -90px;		 */
+		background-size: 100%;
+		-webkit-box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.75);
+		-moz-box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.75);
+		box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.75);			
+		z-index: 50;
+	}	
+	#ground {
+		position: absolute;
+		width: 100%;
+		height: 45px;
+		/* background: black; */
+		border-radius: 2px; 
+		background: url("images/Sand_background_01.jpg") no-repeat;
+		/* background-position: -100px -90px;		 */
+		background-size: 100%;
+	}
+	.hit {
+		position: absolute;
+		width: 5px;
+		height: 5px;
+		background: yellow;
+		border-radius: 5px;
+		-moz-box-shadow: 0px 0px 40px #ddd;
+		-webkit-box-shadow: 0px 0px 40px #ddd;
+		box-shadow: 0px 0px 40px #ddd;
+	}
+	.atomic {
+		position: absolute;
+		width: 5px;
+		height: 5px;
+		background: yellow;
+		border-radius: 5px;
+		-moz-box-shadow: 0px 0px 40px #ddd;
+		-webkit-box-shadow: 0px 0px 40px #ddd;
+		box-shadow: 0px 0px 40px #ddd;
+	}	
+	.bullet {
+		position: absolute;
+		width: 32px;
+		height: 6px;
+		background: yellow;
+		-moz-box-shadow: 0px 0px 80px #ddd;
+		-webkit-box-shadow: 0px 0px 80px #ddd;
+		box-shadow: 0px 0px 80px #ddd;
+		border-radius: 5px;
+	}
+	.selected.word {
+		border: 2px solid lime;
+	}
+	.selected p {
+		color: lime !important;
+	}
+	#stats {
+		position: absolute;
+		bottom: 0;
+		color: yellow;
+	}
+	#score {
+		color: yellow;
+	}
+	#banner {
+		position: absolute;
+		left: 175px;
+		bottom: 235px;		
+		color: yellow;
+		font-size: 24px;
+		font-weight: bold;
+	}	
+</style>
+</head>
+<body>
+
+<div style = "clear: both; height: 15px;"></div>
+<div class = "Story" style = "background: white; border-radius: 17px; color: #444;">
+	<div class = "Text" style = "font-family: Arial,sans-serif; font-size: 14px; color: #444;" id = "article">
+	    <h1 style = "margin-top:0;">Keyboard Practice Typing Game</h1>
+        <p>To play, click on the "Start" button and begin typing words that appear falling from top of the screen. There are several words that will appear at once. You need to choose the word you want to type first. To do that, simply type the first letter it starts with, and you will be automatically locked in on that word, until you finish typing it completely. Keep typing and try to keep your accuracy high. With time your keyboard typing skills will begin to improve.</p><p></p><div style="position: relative; height: 580px"><p></p><p></p><div id="board">
+<div id="mc">
+    <div id="v">
+		<span id="banner"></span>
+        <span id="score"></span>
+        <div id="cannon"></div>
+		<div id="city1" class="city"></div>
+		<div id="city2" class="city"></div>
+		<div id="city3" class="city"></div>
+		<div id="city4" class="city"></div>
+		<div id="ground"></div>
+        <div id="turret"></div>
+        <span id="stats"></span>
+    </div>
+</div>
+</div><p></p><p>
+<audio preload="auto" src="sounds/missile01.mp3" id="bullet">Your browser does not support the audio tag.</audio>
+<audio preload="auto" src="sounds/explosion01.mp3" id="hit">Your browser does not support the audio tag.</audio>
+<audio preload="auto" src="sounds/explosion04.mp3" id="atomic">Your browser does not support the audio tag.</audio>
+</p></div>
+
+<div style = "clear: both; height: 10px;"></div>
+<div style = "text-align: center; font-size: 11px; font-family: Verdana;">Original code modified from <a href ="http://www.learnjquery.org/about/free-keyboard-practice-typing-game-for-kids.html">Free Keyboard Practice Typing Game for Kids</a>.</div>
+<div style = "clear: both; height: 20px;"></div>
+
+</body>
+</html>
+</html>

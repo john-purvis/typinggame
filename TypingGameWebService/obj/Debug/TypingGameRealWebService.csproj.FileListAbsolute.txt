@@ -1,0 +1,6 @@
+D:\Projects\TypingGame\TypingGameRealWebService\bin\TypingGameRealWebService.dll.config
+D:\Projects\TypingGame\TypingGameRealWebService\bin\TypingGameRealWebService.dll
+D:\Projects\TypingGame\TypingGameRealWebService\bin\TypingGameRealWebService.pdb
+D:\Projects\TypingGame\TypingGameRealWebService\obj\Debug\TypingGameRealWebService.csprojResolveAssemblyReference.cache
+D:\Projects\TypingGame\TypingGameRealWebService\obj\Debug\TypingGameRealWebService.dll
+D:\Projects\TypingGame\TypingGameRealWebService\obj\Debug\TypingGameRealWebService.pdb

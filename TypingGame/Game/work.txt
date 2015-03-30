@@ -1,0 +1,62 @@
+http://www.stumbleupon.com/su/5bNuDf/fhbqr$J6:45l@lLAP/www.youtube.com/watch?v=yn3FWb-vQQ4
+
+http://www.instructables.com/id/RC-Steam-Turbine-Tank/
+
+http://www.stumbleupon.com/su/6UO7m3/u0lWdY30:46g!O.-l/www.playfuljs.com/a-first-person-engine-in-265-lines/
+
+
+
+
+http://www.learnjquery.org/about/free-keyboard-practice-typing-game-for-kids.html
+http://www.spelling-words-well.com/printable-spelling-lists.html
+http://www.convertcsv.com/csv-to-json.htm
+
+
+	(function() {
+		//var glosbeAPI = "https://glosbe.com/gapi/tm?from=eng&dest=eng&format=json&page=1&pretty=false";
+		var glosbeAPI = "http://localhost/typinggame/wordlists/09.json;
+		$.getJSON( glosbeAPI, {
+			from: "eng",
+			dest: "eng",
+			page: "1",
+			pretty: "false",
+			phrase: "hope",
+			format: "json"
+		})
+		.done(function( data ) {
+			$.each( data.items, function( i, item ) {
+				word_list.push(item.second);
+			});
+		});
+	})();
+	
+	
+	(function($) {
+		var url = 'https://glosbe.com/gapi/tm?from=eng&dest=eng&format=json&page=1&pretty=false&phrase=hope';
+		 $.ajax({
+		   type: 'GET',
+			url: url,
+			async: false,
+			success: function(json) {
+			   console.dir(json.sites);
+			},
+			error: function(e) {
+			   console.log(e.message);
+			}
+		});
+		 
+	})(jQuery);
+
+	
+	(function($) {
+		var url = 'https://glosbe.com/gapi/tm?from=eng&dest=eng&format=json&page=1&pretty=false&phrase=hope';
+		$.ajax({
+		   type: 'GET',
+			url: url,
+			async: false,
+			contentType: "application/json",
+			dataType: 'jsonp'
+		});
+	})(jQuery);
+	
+	

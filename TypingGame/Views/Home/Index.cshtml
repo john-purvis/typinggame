@@ -1,0 +1,78 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+@*set base location to search for files*@
+<base href="http://localhost:4135/Game/" target="_blank">
+@*load resources needed by the page*@
+<script type='text/javascript' src='js/jquery.js'></script>
+@*load resources needed by the game*@
+<script type="text/javascript" src='js/game.js'></script>
+<link rel="stylesheet" type="text/css" href="css/style.css" />
+
+<div class="jumbotron">
+    <h1>Word Command</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div id="mc">
+            <div id="v">
+                @*add the non-volatile objects*@
+                @*note that we are not adding the cannon or cities*@
+                <span id="banner"></span>
+                <div id="score"></div>
+                <div id="ground"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label for="grade_level_selector">Grade Level:</label>
+            <select class="form-control" id="grade_level_selector">
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+                <option>6</option>
+                <option>7</option>
+                <option>8</option>
+                <option>9</option>
+            </select>
+            <label for="difficulty_level_selector">Difficulty Level:</label>
+            <select class="form-control" id="difficulty_level_selector">
+                <option>easy</option>
+                <option>normal</option>
+                <option>hard</option>
+                <option>impossible</option>
+            </select>
+            @*<p><a id="start_btn" class="btn btn-primary btn-lg">Start &raquo;</a></p>*@
+            <p><a id="start_btn" class="form-control btn btn-default">Start &raquo;</a></p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label for="interface_type_selector">Interface Type:</label>
+            <select class="form-control" id="interface_type_selector">
+                <option>data array</option>
+                <option>http file download</option>
+                <option>web page data</option>
+                <option>web service</option>
+            </select>
+        </div>
+    </div>
+</div>
+<p></p><p>
+    <audio preload="auto" src="sounds/missile01.mp3" id="bullet">Your browser does not support the audio tag.</audio>
+    <audio preload="auto" src="sounds/explosion01.mp3" id="hit">Your browser does not support the audio tag.</audio>
+    <audio preload="auto" src="sounds/explosion04.mp3" id="atomic">Your browser does not support the audio tag.</audio>
+</p>
+
+<div style="clear: both; height: 10px;"></div>
+<div class="col-md-5">
+    <div style="text-align: center; font-size: 11px; font-family: Verdana;">Original code modified from <a href="http://www.learnjquery.org/about/free-keyboard-practice-typing-game-for-kids.html">Free Keyboard Practice Typing Game for Kids</a>.</div>
+</div>
+<div style="clear: both;"></div>
+
+
+

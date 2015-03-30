@@ -1,0 +1,204 @@
+#board {
+position: relative;
+width: 906px;
+height: 560px;
+    /* background: url("../../Game/images/black.png") repeat; */
+}
+
+#mc {
+    position: relative;
+    top: 0px;
+    left: 18px;
+    width: 640px;
+    height: 480px;
+    /*
+    background: url("../../Game/images/digital-space-ipad-background.jpg") no-repeat;
+    background-size: 100%;
+    */
+    background: url("../../Game/images/starsandnebula250d.jpg") repeat;
+}
+
+#v {
+    position: absolute;
+    width: 600px;
+    height: 480px;
+    clip: rect(0, 600px, 480px, 0);
+}
+
+.word_container {
+    position: absolute;
+    opacity: 0.7;
+    border: none;
+}
+
+.word {
+    position: relative;
+    padding-left: 3px;
+    padding-right: 3px;
+    width: auto;
+    display: inline;
+    border-radius: 3px;
+    background: #333333;
+    opacity: 1.0;
+    color: white !important;
+    font-family: Courier New, sans-serif;
+    font-weight: bold;
+    font-size: 20px !important;
+    -webkit-box-shadow: 0px -10px 5px 0px rgba(50, 50, 50, 0.75);
+    -moz-box-shadow: 0px -10px 5px 0px rgba(50, 50, 50, 0.75);
+    box-shadow: 0px -10px 5px 0px rgba(50, 50, 50, 0.75);
+}
+
+.letter {
+    width: 16px;
+    height: 16px;
+}
+
+#cannon {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    /* background: gray; */
+    border-radius: 10px;
+    background: url("../../Game/images/metal_texture02.jpg") no-repeat;
+    /* background-position: -100px -90px; */
+    background-size: 100%;
+    -webkit-box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.75);
+    -moz-box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.75);
+    box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.75);
+    z-index: 50;
+}
+
+#turret {
+    position: absolute;
+    width: 32px;
+    height: 4px;
+    /* background: gray; */
+    background: url("../../Game/images/gradiant_texture01.jpg") no-repeat;
+    background-position: -100px -90px;
+    z-index: 50;
+}
+
+.city {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    /* background: black; */
+    border-radius: 2px;
+    background: url("../../Game/images/brick_texture01.jpg") no-repeat;
+    /* background-position: -100px -90px;		 */
+    background-size: 100%;
+    -webkit-box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.75);
+    -moz-box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.75);
+    box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.75);
+    z-index: 50;
+}
+
+#ground {
+    position: absolute;
+    width: 100%;
+    height: 45px;
+    /* background: black; */
+    border-radius: 2px;
+    background: url("../../Game/images/Sand_background_01.jpg") no-repeat;
+    /* background-position: -100px -90px;		 */
+    background-size: 100%;
+}
+
+.hit {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    background: yellow;
+    border-radius: 5px;
+    -moz-box-shadow: 0px 0px 40px #ddd;
+    -webkit-box-shadow: 0px 0px 40px #ddd;
+    box-shadow: 0px 0px 40px #ddd;
+}
+
+.atomic {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    background: yellow;
+    border-radius: 5px;
+    -moz-box-shadow: 0px 0px 40px #ddd;
+    -webkit-box-shadow: 0px 0px 40px #ddd;
+    box-shadow: 0px 0px 40px #ddd;
+}
+
+.bullet {
+    position: absolute;
+    width: 32px;
+    height: 6px;
+    background: yellow;
+    -moz-box-shadow: 0px 0px 80px #ddd;
+    -webkit-box-shadow: 0px 0px 80px #ddd;
+    box-shadow: 0px 0px 80px #ddd;
+    border-radius: 5px;
+}
+
+.selected.word {
+    border: 2px solid lime;
+}
+
+.selected p {
+    color: lime !important;
+}
+
+#stats {
+    position: absolute;
+    bottom: 0;
+    color: yellow;
+}
+
+#score {
+    position: relative;
+    top: 5px;
+    left: 10px;
+    color: yellow;
+}
+
+#banner {
+    position: absolute;
+    left: 175px;
+    bottom: 235px;
+    color: yellow;
+    font-size: 24px;
+    font-weight: bold;
+}
+.clipped {
+	cursor: pointer;
+	-webkit-transition: top 1.2s linear;
+	transition: top 1.2s linear;	
+}
+.clipped div {
+	z-index: 9999999;
+	color: #fff;
+	font-size: 1em;
+	padding: 50px 20px;
+	text-align: center;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	background: #4F9CC7;
+}
+
+.clipped div h1 {
+	text-shadow: 2px 2px rgba(0,0,0,0.2);
+}
+
+
+.clipped, .clipped div {
+	width: 400px;
+	height: 400px;
+	position: relative;
+}
+
+.clipped div {
+	position: absolute;
+	top: auto;
+	left: 0;
+	background: #4F9CC7;
+	-webkit-transition: -webkit-transform 1.4s ease-in, background 0.3s ease-in;
+	transition: transform 1.4s ease-in, background 0.3s ease-in;
+}
