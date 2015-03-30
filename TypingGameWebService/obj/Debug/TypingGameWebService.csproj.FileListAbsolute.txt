@@ -3,3 +3,9 @@ D:\Projects\TypingGame\TypingGameWebService\bin\TypingGameRealWebService.dll
 D:\Projects\TypingGame\TypingGameWebService\bin\TypingGameRealWebService.pdb
 D:\Projects\TypingGame\TypingGameWebService\obj\Debug\TypingGameRealWebService.dll
 D:\Projects\TypingGame\TypingGameWebService\obj\Debug\TypingGameRealWebService.pdb
+C:\Projects\typinggame\TypingGameWebService\bin\TypingGameRealWebService.dll.config
+C:\Projects\typinggame\TypingGameWebService\bin\TypingGameRealWebService.dll
+C:\Projects\typinggame\TypingGameWebService\bin\TypingGameRealWebService.pdb
+C:\Projects\typinggame\TypingGameWebService\obj\Debug\TypingGameWebService.csprojResolveAssemblyReference.cache
+C:\Projects\typinggame\TypingGameWebService\obj\Debug\TypingGameRealWebService.dll
+C:\Projects\typinggame\TypingGameWebService\obj\Debug\TypingGameRealWebService.pdb
