@@ -206,12 +206,16 @@ function start_game_using_data_array(gradeLevel, difficultyLevel) {
 //
 //      OR IIS Express
 //
-// cd C:\Program Files\IIS Express
-// appcmd set config /section:staticContent /+[fileExtension='JSON',mimeType='application/x-javascript']
-//      OR
-// edit the applicationhost.config in BOTH of the following folders
-// cd C:\Program Files (x86)\IIS Express\AppServer
-// cd C:\Users\username\Documents\IISExpress\config
+//o	cd C:\Program Files\IIS Express\AppServer
+//o	cd C:\Program Files (x86)\IIS Express\AppServer
+//o	run this command for each of the folders above
+//o	appcmd set config /section:staticContent /+[fileExtension='JSON',mimeType='application/x-javascript']
+//o	OR
+//o	Add the mime type to the applicationhost.config in ALL of the following folders
+//o	cd C:\Program Files\IIS Express\AppServer
+//o	cd C:\Program Files (x86)\IIS Express\AppServer
+//o	cd C:\Users\username\Documents\IISExpress\config
+
 
 function start_game_using_http_file_download(gradeLevel, difficultyLevel) {
 	/* set up the playground */
@@ -230,6 +234,29 @@ function start_game_using_http_file_download(gradeLevel, difficultyLevel) {
     	initialize_and_start();
     });
 }
+
+//•	Setup IIS Express to allow cross domain posts for web services and web pages
+//o	The needed items for CORS is already in the web.config for the projects
+//o	YOU MAY HAVE TO enable CORS to allow cross-domain posting on IIS Express
+//o	cd C:\Program Files\IIS Express\AppServer
+//o	cd C:\Program Files (x86)\IIS Express\AppServer
+//o	cd C:\Users\username\Documents\IISExpress\config
+//o	open the applicationhost.config
+//o	Search for httpProtocol and you should see this:
+//o	 <httpProtocol>
+//o	    <customHeaders>
+//o	        <clear />
+//o	        <add name="X-Powered-By" value="ASP.NET" />
+//o	    </customHeaders>
+//o	    <redirectHeaders>
+//o	        <clear />
+//o	    </redirectHeaders>
+//o	</httpProtocol>
+//o
+//o	Add the following lines to the customHeaders node in each config file
+//o	<add name="Access-Control-Allow-Origin" value="*" />
+//o	<add name="Access-Control-Allow-Headers" value="Content-Type" />
+
 
 // GETTING JSON DATA VIA SIMPLE WEB PAGE
 function start_game_using_web_page(gradeLevel, difficultyLevel) {
@@ -251,7 +278,7 @@ function start_game_using_web_page(gradeLevel, difficultyLevel) {
 }
 
 // GETTING JSON DATA VIA SIMPLE WEB SERVICE
-// YOU WILL NEED TO ADD THIS TO <systems.web> IN YOUR WEB.CONFIG
+// YOU MAY NEED TO ADD THIS TO <systems.web> IN YOUR WEB SERVICE WEB.CONFIG
 //<webServices>
 //    <protocols>
 //        <add name="HttpGet"/>
