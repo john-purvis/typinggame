@@ -1,13 +1,10 @@
 ﻿@{
     ViewBag.Title = "Home Page";
 }
-@*set base location to search for files*@
-<base href="http://localhost:4135/Game/" target="_blank">
-@*load resources needed by the page*@
-<script type='text/javascript' src='js/jquery.js'></script>
+
 @*load resources needed by the game*@
-<script type="text/javascript" src='js/game.js'></script>
-<link rel="stylesheet" type="text/css" href="css/style.css" />
+<script type="text/javascript" src='/Game/js/game.js'></script>
+<link rel="stylesheet" type="text/css" href="/Game/css/style.css" />
 
 <div class="jumbotron">
     <h1>Word Command</h1>
@@ -63,9 +60,9 @@
     </div>
 </div>
 <p></p><p>
-    <audio preload="auto" src="sounds/missile01.mp3" id="bullet">Your browser does not support the audio tag.</audio>
-    <audio preload="auto" src="sounds/explosion01.mp3" id="hit">Your browser does not support the audio tag.</audio>
-    <audio preload="auto" src="sounds/explosion04.mp3" id="atomic">Your browser does not support the audio tag.</audio>
+    <audio preload="auto" src="/Game/sounds/missile01.mp3" id="bullet">Your browser does not support the audio tag.</audio>
+    <audio preload="auto" src="/Game/sounds/explosion01.mp3" id="hit">Your browser does not support the audio tag.</audio>
+    <audio preload="auto" src="/Game/sounds/explosion04.mp3" id="atomic">Your browser does not support the audio tag.</audio>
 </p>
 
 <div style="clear: both; height: 10px;"></div>
